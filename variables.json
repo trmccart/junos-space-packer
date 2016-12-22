@@ -1,11 +1,12 @@
 {
-  "local_ip": "192.168.0.9",
-  "admin_password": "Junos_Space123!",
+  "local_ip": "192.168.0.1",
+  "admin_password": "Jun0s!Sp@ce123!",
   "ip_vip": "192.168.0.200",
   "ip_web_gui": "192.168.0.201",
   "ip_subnet_mask":"255.255.255.0",
   "ip_default_gateway": "192.168.0.1",
   "ip_dns_server": "192.168.0.1",
   "hostname": "SpaceHostname",
-  "maintenance_password": "maintenance123!"
+  "maintenance_password": "maintenance123!",
+  "space_version": "15.2R2.4"
 }

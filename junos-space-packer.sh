@@ -20,7 +20,6 @@ if [ ! -f "$GOPATH/src/github.com/mitchellh/junos-space-packer.flag" ]; then
 fi
 
 
-
 cd $cwd
 mkdir -p http
 if [ ! "$(ls -A http/jsnap.rpm)" ]; then

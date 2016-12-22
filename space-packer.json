@@ -2,8 +2,9 @@
   "builders": [
     {
       "type": "virtualbox-ovf",
+      "headless": true,
       "communicator": "ssh",
-      "source_path": "http/space.ova",
+      "source_path": "http/space-{{user `space_version`}}.ova",
       "ssh_skip_nat_mapping": true,
       "ssh_username": "admin",
       "ssh_password": "{{user `admin_password`}}",
@@ -20,14 +21,14 @@
       "http_directory" : "http",
       "http_port_min" : 9001,
       "http_port_max" : 9001,
-      "boot_wait": "30s",
+      "boot_wait": "60s",
       "boot_command": [
-        "admin<enter><wait>",
-        "abc123<enter><wait>",
-        "abc123<enter><wait>",
-        "{{user `admin_password`}}<enter><wait>",
-        "{{user `admin_password`}}<enter><wait>",
-        "{{user `admin_password`}}<enter><wait10>",
+        "admin<enter><wait5>",
+        "abc123<enter><wait5>",
+        "abc123<enter><wait5>",
+        "{{user `admin_password`}}<enter><wait5>",
+        "{{user `admin_password`}}<enter><wait5>",
+        "{{user `admin_password`}}<enter><wait5>",
         "<enter><wait>",
         "1<wait>",
         "{{user `ip_vip`}}<enter><wait>",
@@ -47,9 +48,11 @@
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
         "<wait10><wait10><wait10><wait10><wait10><wait10>",
-        "5<wait><wait>1<wait><wait>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "<wait10><wait10><wait10><wait10><wait10><wait10>",
+        "5<wait><wait10>1<wait><wait10>",
         "{{user `admin_password`}}<enter><wait10>",
-        "7<wait>",
+        "7<wait10>",
         "{{user `admin_password`}}<enter><wait><wait><wait>",
         "curl -O http://{{user `local_ip`}}:{{ .HTTPPort }}/jsnap.rpm<enter><wait10>",
         "yum install localinstall --nogpgcheck jsnap.rpm<enter><wait><wait><wait><wait>Y<enter><wait10>",
@@ -62,7 +65,7 @@
         " && sleep 10s && STATUS=`curl -sS https://{{user `ip_web_gui`}}/mainui/ --insecure`; ",
         "else sleep 20s; curl -O http://{{user `local_ip`}}:{{ .HTTPPort }}/upload_jsnap_op_scripts.py && ",
         "python upload_jsnap_op_scripts.py {{user `ip_web_gui`}} `printf 'super:juniper123' | base64` && ",
-        "perl installScript.pl add platform `pwd` `pwd` blah 15.2R2.4 && sleep 30s && echo '{{user `admin_password`}}' | sudo -ES /bin/bash -c ",
+        "perl installScript.pl add platform `pwd` `pwd` blah {{user `space_version`}} && sleep 30s && echo '{{user `admin_password`}}' | sudo -ES /bin/bash -c ",
         "'service all && service jmp-watchdog stop && service jboss stop ",
         "&& service jboss-dc stop && service mysql stop && service snmpd stop ",
         "&& shutdown -h +3 && echo 'Powering down in 3 minutes' && sleep 3m && poweroff'; break; fi done<enter>"
@@ -70,7 +73,20 @@
       "vboxmanage": [
         ["modifyvm", "{{.Name}}", "--memory", "10024"],
         ["modifyvm", "{{.Name}}", "--cpus", "4"],
-        ["modifyvm", "{{.Name}}", "--acpi", "on"]
+        ["modifyvm", "{{.Name}}", "--acpi", "on"],
+        ["hostonlyif", "create"],
+        ["hostonlyif", "ipconfig", "vboxnet0", "--ip", "{{user `local_ip`}}", "--netmask", "255.255.255.0"],
+        ["modifyvm", "{{.Name}}", "--nic1", "hostonly", "--hostonlyadapter1", "vboxnet0"],
+        ["modifyvm", "{{.Name}}", "--nic2", "hostonly", "--hostonlyadapter2", "vboxnet0"],
+        ["modifyvm", "{{.Name}}", "--nic3", "hostonly", "--hostonlyadapter3", "vboxnet0"],
+        ["modifyvm", "{{.Name}}", "--nic4", "hostonly", "--hostonlyadapter4", "vboxnet0"]
+      ],
+      "vboxmanage_post": [
+        ["modifyvm", "{{.Name}}", "--nic1", "bridged"],
+        ["modifyvm", "{{.Name}}", "--nic2", "bridged"],
+        ["modifyvm", "{{.Name}}", "--nic3", "bridged"],
+        ["modifyvm", "{{.Name}}", "--nic4", "bridged"],
+        ["hostonlyif", "remove", "vboxnet0"]
       ]
     }
   ]
